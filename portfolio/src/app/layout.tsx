@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Inter } from "next/font/google";
-
+import Chat from "@/components/Chat";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,7 +22,14 @@ export default function RootLayout({
       <body
         className={`${inter.className} bg-white text-black dark:bg-black dark:text-white transition-colors duration-500`}
       >
-        {children}
+       <div className="bg-black min-h-screen pb-40">
+          {children}
+        </div>
+
+        {/* Global chat */}
+        <div className="fixed bottom-0 right-0 left-0 z-50">
+          <Chat />
+        </div>
       </body>
     </html>
   );

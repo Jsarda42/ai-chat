@@ -1,0 +1,32 @@
+{
+  "intent": "greeting",
+  "patterns": [
+    "hi",
+    "hello",
+    "hey",
+    "yo",
+    "greetings",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "howdy",
+    "hiya",
+    "what's up",
+    "sup",
+    "hey there",
+    "hi there",
+    "hello there",
+    "hey yo",
+    "hi yo",
+    "hello yo",
+    "greetings and salutations",
+    "salutations",
+    "hiya there",
+    "how are you",
+    "how's it going",
+    "long time no see",
+    "nice to see you",
+    "pleased to meet you"
+  ],
+  "response": "Hello 👋"
+}

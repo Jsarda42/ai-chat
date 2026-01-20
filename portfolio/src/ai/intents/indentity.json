@@ -1,0 +1,9 @@
+{
+  "intent": "identity",
+  "patterns": [
+    "who are you",
+    "what are you",
+    "your role"
+  ],
+  "response": "I am an AI assistant."
+}

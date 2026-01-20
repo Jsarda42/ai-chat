@@ -1,45 +1,37 @@
-export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { chatBrain } from "@/ai/chatBrain";
 
-let pendingInput: string | null = null;
-
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const message = body?.message;
+    const { message, teachFor } = await req.json();
 
     if (!message) {
       return NextResponse.json(
-        { error: "No message provided" },
+        { text: "Invalid input" },
         { status: 400 }
       );
     }
 
-    // Teaching phase
-    if (pendingInput) {
-      chatBrain.learn(pendingInput, message);
-      pendingInput = null;
+    // 1️⃣ Explicit teaching
+    if (teachFor) {
+      await chatBrain.learn(teachFor, message);
 
       return NextResponse.json({
-        text: "Got it 👍 I learned that.",
-        confidence: 1
+        text: `Got it 👍 I learned that "${teachFor}" means "${message}"`,
+        confidence: 1,
+        needsTraining: false
       });
     }
 
-    // Normal chat
-    const result = chatBrain.getResponse(message);
+    // 2️⃣ Normal response
+    const response = await chatBrain.getResponse(message);
 
-    if (result.needsTraining) {
-      pendingInput = result.input;
-    }
+    return NextResponse.json(response);
 
-    return NextResponse.json(result);
   } catch (err) {
-    console.error("CHAT API ERROR:", err);
-
+    console.error("[API /chat]", err);
     return NextResponse.json(
-      { text: "Server error 🤖", confidence: 0 },
+      { text: "Server error 🤖" },
       { status: 500 }
     );
   }
