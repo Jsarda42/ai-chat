@@ -27,9 +27,9 @@ export default function RootLayout({
         </div>
 
         {/* Global chat */}
-        <div className="fixed bottom-0 right-0 left-0 z-50">
+        {/* <div className="fixed bottom-0 right-0 left-0 z-50">
           <Chat />
-        </div>
+        </div> */}
       </body>
     </html>
   );

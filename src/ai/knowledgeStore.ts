@@ -1,4 +1,4 @@
-import { db } from "@/lib/firebaseAdmin";
+import { db } from "@/aiV2/lib/firebaseAdmin";
 import { Timestamp } from "firebase-admin/firestore";
 import { Knowledge } from "./type";
 

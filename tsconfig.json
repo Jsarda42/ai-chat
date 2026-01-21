@@ -38,7 +38,7 @@
     "src/app/ai/brain.js",
     "src/ai/chatBrain.js",
     "next.config.js"
-  ],
+, "src/aiV2/utils/normalizer-test.js"  ],
   "exclude": [
     "node_modules"
   ]
