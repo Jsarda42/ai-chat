@@ -4,16 +4,31 @@ import { processInput, teachConcept } from "@/aiV2/processInput";
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  if (body.teach) {
-    // Teaching flow
-    const { concept, kind, value } = body;
-    const saved = await teachConcept(concept, kind, value);
+  // TEACHING FLOW
+  if (body.teach === true) {
+    const { entity, attribute, kind, value } = body;
+    if (!entity || !attribute || !value) {
+      return NextResponse.json(
+        { error: "Missing teaching fields" },
+        { status: 400 }
+      );
+    }
+
+    const saved = await teachConcept(entity, attribute, kind, value);
+
     return NextResponse.json({ status: "ok", saved });
   }
 
-  // Normal chat flow
+  // NORMAL CHAT FLOW
   const { input } = body;
-  const result = await processInput(input);
 
+  if (!input) {
+    return NextResponse.json(
+      { error: "Missing input" },
+      { status: 400 }
+    );
+  }
+
+  const result = await processInput(input);
   return NextResponse.json(result);
 }

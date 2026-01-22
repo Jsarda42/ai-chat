@@ -8,34 +8,44 @@ const STOP_WORDS = [
     "and", "or", "with"
 ];
 
-function extractEntityFromOfPhrase(concept: string): string {
-    if (!concept.includes(" of ")) return concept;
+const ATTRIBUTE_VERBS = [
+    "be", "have", "do", "work", "invent", "sign", "eat", "change", "find", "learn"
+];
 
-    const parts = concept.split(" of ");
-    return parts[parts.length - 1];
+function removeStopWords(tokens: string[]): string[] {
+    return tokens.filter(t => !STOP_WORDS.includes(t));
 }
 
-
-export function extractConcept(text: string): string | null {
+export function extractEntityAndAttribute(text: string) {
     const normalized = normalize(text);
-    const entityConcept = extractEntityFromOfPhrase(normalized);
-    const tokens = entityConcept.split(" ");
+    const tokens = normalized.split(" ");
 
-    const filtered = tokens.filter(
-        t => !STOP_WORDS.includes(t)
-    );
-     if (filtered.length === 0) return null;
-    const concept = filtered.join(" ");
-
-    if (
-        concept.startsWith("i ") ||
-        concept.includes(" i ") ||
-        concept.startsWith("you ") ||
-        concept.includes(" you ") ||
-        concept.split(" ").length > 3
-    ) {
-        return null;
+    // Pattern 1: "X of Y" → common for "capital of France"
+    const ofIndex = tokens.indexOf("of");
+    if (ofIndex > 0 && ofIndex < tokens.length - 1) {
+        const attribute = tokens.slice(0, ofIndex).filter(t => !STOP_WORDS.includes(t)).join(" ");
+        const entity = tokens.slice(ofIndex + 1).filter(t => !STOP_WORDS.includes(t)).join(" ");
+        return { entity, attribute };
     }
 
-    return filtered.length > 1 ? filtered[0] : filtered[0];
+    // Pattern 2: "Who/What/When ... verb entity?" → "Who invented the telephone?"
+    const questionWordIndex = tokens.findIndex(t => ["who", "what", "when", "why", "how", "where"].includes(t));
+    if (questionWordIndex === 0) {
+        // find first verb after question word
+        const verbIndex = tokens.findIndex(t => ATTRIBUTE_VERBS.includes(t));
+        if (verbIndex > 0) {
+            const attributeTokens = tokens.slice(questionWordIndex + 1, verbIndex + 1).filter(t => !STOP_WORDS.includes(t));
+            const entityTokens = tokens.slice(verbIndex + 1).filter(t => !STOP_WORDS.includes(t));
+            const attribute = attributeTokens.join(" ");
+            const entity = entityTokens.join(" ");
+            return { entity, attribute };
+        }
+    }
+
+    // Pattern 3: fallback → take last noun(s) as entity, first word(s) as attribute
+    const filteredTokens = removeStopWords(tokens);
+    if (filteredTokens.length === 0) return { entity: null, attribute: null };
+    const entity = filteredTokens[filteredTokens.length - 1]; // last word
+    const attribute = filteredTokens.slice(0, filteredTokens.length - 1).join(" ") || null;
+    return { entity, attribute };
 }

@@ -1,38 +1,49 @@
 import { normalize } from "./utils/normalizer";
 import { detectInputKind } from "./utils/detectInputKind";
-import { extractConcept } from "./utils/exctractConcept";
+import { extractEntityAndAttribute } from "./utils/exctractConcept";
 import { findKnowledge, storeKnowledge } from "./utils/memory";
+import { estimateAnswerShape } from "./utils/estimateAnswerShape";
+import { canonicalizeAttribute } from "./utils/canonicalizeAttribute";
 
 export async function processInput(input: string) {
   const normalized = normalize(input);
   const kind = detectInputKind(normalized);
-  const candidateConcept = extractConcept(normalized);
-
+  const { entity, attribute: rawAttribute } = extractEntityAndAttribute(normalized);
+  const attribute = canonicalizeAttribute(rawAttribute);
   let response: string | null = null;
 
-  if (kind === "question" && candidateConcept) {
-    response = await findKnowledge(candidateConcept);
-
-    if (!response) {
-      // AI doesn't know → needs teaching
-      return {
-        kind,
-        concept: candidateConcept,
-        response: null,
-        teachNeeded: true,
-      };
-    }
+  if (kind === "question" && entity && attribute) {
+    response = await findKnowledge(entity, attribute);
   }
+  const shape = estimateAnswerShape({
+    text: normalized,
+    kind,
+    entity,
+    attribute,
+  });
+
+  const teachable = shape === "fact" || shape === "definition" || shape === "number";
+  const teachNeeded =
+    kind === "question" &&
+    entity &&
+    attribute &&
+    response === null && teachable;
+
+
+
 
   return {
     kind,
-    concept: candidateConcept,
+    entity,
+    attribute,
     response,
-    teachNeeded: false,
+    teachNeeded,
+    shape,
   };
+
+}
+export async function teachConcept(entity: string, attribute: string, kind: string, value: string) {
+  await storeKnowledge(entity, attribute, kind as any, value);
+  return { entity, attribute, value };
 }
 
-export async function teachConcept(concept: string, kind: string, value: string) {
-  await storeKnowledge(concept, kind as any, value);
-  return { concept, value };
-}

@@ -13,7 +13,6 @@ class ChatBrain {
     if (!this.initialized) {
       this.knowledge = await loadKnowledge();
       this.initialized = true;
-      console.log("[ChatBrain] Knowledge loaded");
     }
   }
 

@@ -17,8 +17,6 @@ export async function loadKnowledge(): Promise<Knowledge> {
       knowledge[doc.id] = data.response;
     }
   });
-
-  console.log("[Firestore] Loaded knowledge keys:", Object.keys(knowledge));
   return knowledge;
 }
 

@@ -6,7 +6,8 @@ type Message = {
   text: string;
   role: "user" | "ai";
   kind?: string;
-  concept?: string | null;
+  entity?: string | null;
+  attribute?: string | null;
   teachNeeded?: boolean;
   taught?: boolean;
 };
@@ -22,35 +23,30 @@ export default function TesterPage() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // ======================
+  // SEND MESSAGE
+  // ======================
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    // Add user message
     setMessages(prev => [...prev, { text: input, role: "user" }]);
 
-    // Call API
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ input }),
     });
-    const data = await res.json();
-    console.group(`AI Test: "${input}"`);
-    console.log("Input:", input);
-    console.log("Detected kind:", data.kind);
-    console.log("Detected concept:", data.concept);
-    console.log("Response:", data.response);
-    console.log("TeachNeeded:", data.teachNeeded);
-    console.groupEnd();
 
-    // Add AI response
+    const data = await res.json();
+
     setMessages(prev => [
       ...prev,
       {
-        text: data.response || "(I don't know yet!)",
+        text: data.response ?? "(I don't know yet)",
         role: "ai",
         kind: data.kind,
-        concept: data.concept,
+        entity: data.entity,
+        attribute: data.attribute,
         teachNeeded: data.teachNeeded,
       },
     ]);
@@ -58,42 +54,43 @@ export default function TesterPage() {
     setInput("");
   };
 
-  const teach = async (concept: string, kind?: string) => {
+  // ======================
+  // TEACH AI
+  // ======================
+  const teach = async (
+    entity: string,
+    attribute: string,
+    kind?: string
+  ) => {
     if (!teachValue.trim()) return;
 
-    // Store in Firestore
     await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ teach: true, concept, kind, value: teachValue }),
+      body: JSON.stringify({
+        teach: true,
+        entity,
+        attribute,
+        kind,
+        value: teachValue,
+      }),
     });
 
-    // Show teaching confirmation
     setMessages(prev => [
       ...prev,
       {
-        text: `✅ Taught "${concept}" as "${teachValue}"`,
+        text: `✅ Learned: ${attribute} of ${entity} = ${teachValue}`,
         role: "ai",
-        concept,
-        kind,
         taught: true,
       },
     ]);
 
     setTeachValue("");
-
-    // Optionally, AI responds immediately with the value
-    setMessages(prev => [
-      ...prev,
-      {
-        text: teachValue,
-        role: "ai",
-        concept,
-        kind,
-      },
-    ]);
   };
 
+  // ======================
+  // UI
+  // ======================
   return (
     <div className="fixed bottom-0 right-0 w-full sm:w-96 z-50">
       {/* Header */}
@@ -109,30 +106,39 @@ export default function TesterPage() {
 
       {/* Chat body */}
       {isOpen && (
-        <div className="flex flex-col h-80 bg-black text-white p-4 border-t border-zinc-800">
-          <div className="flex-1 overflow-y-auto space-y-2">
+        <div className="flex flex-col h-96 bg-black text-white p-4 border-t border-zinc-800">
+          <div className="flex-1 overflow-y-auto space-y-3">
             {messages.map((m, i) => (
               <div
                 key={i}
                 className={`p-2 rounded max-w-sm ${
-                  m.role === "user" ? "bg-blue-600 self-end" : "bg-zinc-800 self-start"
+                  m.role === "user"
+                    ? "bg-blue-600 self-end"
+                    : "bg-zinc-800 self-start"
                 }`}
               >
-                {m.text}
+                <div>{m.text}</div>
 
-                {m.teachNeeded && m.concept && (
+                {/* Teaching UI */}
+                {m.teachNeeded && m.entity && m.attribute && (
                   <div className="mt-2 flex gap-2">
                     <input
                       type="text"
                       value={teachValue}
                       onChange={e => setTeachValue(e.target.value)}
-                      placeholder={`Teach AI: value for "${m.concept}"`}
-                      className="flex-1 bg-zinc-900 border border-zinc-700 p-1 rounded text-black"
-                      onKeyDown={e => e.key === "Enter" && teach(m.concept!, m.kind)}
+                      placeholder={`Teach: ${m.attribute} of ${m.entity}`}
+                      className="flex-1 bg-zinc-900 border border-zinc-700 p-1 rounded text-white"
+                      onKeyDown={e =>
+                        e.key === "Enter" &&
+                        teach(m.entity!, m.attribute!, m.kind)
+                      }
                     />
                     <button
-                      onClick={() => teach(m.concept!, m.kind)}
-                      className="bg-green-600 px-2 rounded"
+                      type="button"
+                      onClick={() =>
+                        teach(m.entity!, m.attribute!, m.kind)
+                      }
+                      className="bg-green-600 px-3 rounded"
                     >
                       Teach
                     </button>
@@ -150,9 +156,12 @@ export default function TesterPage() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && sendMessage()}
-              placeholder="Say something…"
+              placeholder="Ask something…"
             />
-            <button onClick={sendMessage} className="bg-green-600 px-4 rounded">
+            <button
+              onClick={sendMessage}
+              className="bg-green-600 px-4 rounded"
+            >
               Send
             </button>
           </div>
