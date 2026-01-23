@@ -1,3 +1,10 @@
+export function normalizePossessive(text: string): string {
+  return text.replace(
+    /\b([a-z]+)'s\s+([a-z]+)/g,
+    "$2 of $1"
+  );
+}
+
 export function normalize(text: string): string {
     if (!text) return "";
     return text
@@ -10,5 +17,7 @@ export function normalize(text: string): string {
     // remove punctuation
       .replace(/[.,!?;:]/g, "");
 }
+
+
 
 

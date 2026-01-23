@@ -1,15 +1,18 @@
-import { normalize } from "./utils/normalizer";
+import { normalize, normalizePossessive } from "./utils/normalizer";
 import { detectInputKind } from "./utils/detectInputKind";
 import { extractEntityAndAttribute } from "./utils/exctractConcept";
 import { findKnowledge, storeKnowledge } from "./utils/memory";
 import { estimateAnswerShape } from "./utils/estimateAnswerShape";
 import { canonicalizeAttribute } from "./utils/canonicalizeAttribute";
+import { mapAttributeSynonym } from "./utils/mapAttributeSynonym";
 
 export async function processInput(input: string) {
   const normalized = normalize(input);
-  const kind = detectInputKind(normalized);
-  const { entity, attribute: rawAttribute } = extractEntityAndAttribute(normalized);
-  const attribute = canonicalizeAttribute(rawAttribute);
+  const possessiveNormalized = normalizePossessive(normalized);
+  const kind = detectInputKind(possessiveNormalized);
+  const { entity, attribute: rawAttribute } = extractEntityAndAttribute(possessiveNormalized);
+  const mapAttribute = mapAttributeSynonym(rawAttribute);
+  const attribute = canonicalizeAttribute(mapAttribute);
   let response: string | null = null;
 
   if (kind === "question" && entity && attribute) {

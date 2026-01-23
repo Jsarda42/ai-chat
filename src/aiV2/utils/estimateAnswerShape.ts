@@ -1,25 +1,11 @@
-export type AnswerShape =
-  | "fact"
-  | "number"
-  | "definition"
-  | "procedure"
-  | "recommendation"
-  | "unknown";
+import { AnswerShape, ShapeInput, ShapeScore } from "../core/answerShapes";
+import { QUESTION_FORM_SIGNALS } from "../language/questionPatterns";
+import { INSTABILITY_PATTERNS } from "../language/instabilityPatterns";
+import { MEASURABLE_ATTRIBUTES } from "../language/measurableAttributes";
 
-  type ShapeInput = {
-  text: string;
-  kind: "question" | "command" | "greeting" | "statement" | "unknown";
-  entity?: string | null;
-  attribute?: string | null;
-};
-
-type ShapeScore = {
-  fact: number;
-  number: number;
-  definition: number;
-  procedure: number;
-  recommendation: number;
-};
+/* =========================
+   Init
+   ========================= */
 
 function initScores(): ShapeScore {
   return {
@@ -31,38 +17,19 @@ function initScores(): ShapeScore {
   };
 }
 
-function applyQuestionFormSignal(
+/* =========================
+   Signals
+   ========================= */
+
+function applyQuestionFormSignals(
   text: string,
   scores: ShapeScore
 ) {
-  if (text.startsWith("how many") || text.startsWith("how much")) {
-    scores.number += 3;
-    return;
-  }
-
-  if (text.startsWith("what is") || text.startsWith("what was")) {
-    scores.fact += 2;
-    scores.definition += 1;
-    return;
-  }
-
-  if (text.startsWith("who")) {
-    scores.fact += 3;
-    return;
-  }
-
-  if (text.startsWith("when")) {
-    scores.fact += 2;
-    return;
-  }
-
-  if (text.startsWith("how to") || text.startsWith("how do i")) {
-    scores.procedure += 3;
-    return;
-  }
-
-  if (text.startsWith("where")) {
-    scores.recommendation += 3;
+  for (const signal of QUESTION_FORM_SIGNALS) {
+    if (text.startsWith(signal.startsWith)) {
+      scores[signal.shape] += signal.weight;
+      return; // first strong signal wins
+    }
   }
 }
 
@@ -73,23 +40,12 @@ function applyEntityAttributeSignal(
 ) {
   if (!entity || !attribute || !scores) return;
 
-  // measurable attributes → number
-  const measurableAttributes = [
-    "population",
-    "age",
-    "height",
-    "weight",
-    "size",
-    "length",
-    "distance",
-  ];
-
-  if (measurableAttributes.includes(attribute)) {
+  if (MEASURABLE_ATTRIBUTES.includes(attribute)) {
     scores.number += 3;
     return;
   }
 
-  // descriptive attributes → fact
+  // stable factual attribute
   scores.fact += 2;
 }
 
@@ -97,22 +53,13 @@ function applyStabilitySignal(
   text: string,
   scores: ShapeScore
 ) {
-  const unstablePatterns = [
-    "good",
-    "best",
-    "near me",
-    "i ",
-    "you ",
-    "recommend",
-  ];
-
-  if (unstablePatterns.some(p => text.includes(p))) {
+  if (INSTABILITY_PATTERNS.some(p => text.includes(p))) {
     scores.recommendation += 3;
     scores.procedure += 1;
   }
 }
 
-function applyAnswerLengthSignal(
+function applyDefinitionSignal(
   text: string,
   scores: ShapeScore
 ) {
@@ -121,35 +68,33 @@ function applyAnswerLengthSignal(
   }
 }
 
+/* =========================
+   Resolution
+   ========================= */
+
 function resolveShape(scores: ShapeScore): AnswerShape {
   const entries = Object.entries(scores) as [AnswerShape, number][];
-
   entries.sort((a, b) => b[1] - a[1]);
 
   const [topShape, topScore] = entries[0];
 
   if (topScore < 3) return "unknown";
-
   return topShape;
 }
+
+/* =========================
+   Public API
+   ========================= */
 
 export function estimateAnswerShape(input: ShapeInput): AnswerShape {
   if (input.kind !== "question") return "unknown";
 
   const scores = initScores();
 
-  applyQuestionFormSignal(input.text, scores);
+  applyQuestionFormSignals(input.text, scores);
   applyEntityAttributeSignal(input.entity, input.attribute, scores);
   applyStabilitySignal(input.text, scores);
-  applyAnswerLengthSignal(input.text, scores);
+  applyDefinitionSignal(input.text, scores);
 
   return resolveShape(scores);
 }
-
-
-
-
-
-
-
-

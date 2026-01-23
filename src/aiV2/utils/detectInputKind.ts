@@ -1,49 +1,12 @@
 import { normalize } from "./normalizer";
-
-export const INPUT_KINDS = [
-  "greeting",
-  "command",
-  "question",
-  "statement",
-  "unknown",
-] as const;
-
-type InputKind = typeof INPUT_KINDS[number];
-
-/* =========================
-   Keyword definitions
-   ========================= */
-
-const GREETING_WORDS = ["hello", "hi", "hey", "good morning", "good evening"];
-
-const COMMAND_VERBS = ["remember", "forget", "teach", "reset"];
-
-const QUESTION_WORDS = ["what", "how", "why", "when", "where", "who"];
-
-const QUESTION_AUXILIARIES = [
-  "is",
-  "are",
-  "do",
-  "does",
-  "did",
-  "can",
-  "could",
-  "would",
-  "will",
-  "shall",
-];
-
-/* =========================
-   Helpers
-   ========================= */
+import { QUESTION_WORDS, QUESTION_AUXILIARIES } from "../language/questionWords";
+import { GREETING_WORDS } from "../language/greetings";
+import { COMMAND_VERBS } from "../language/commandVerbs";
+import { InputKind } from "../core/inputKinds";
 
 function getWords(text: string): string[] {
   return text.split(" ");
 }
-
-/* =========================
-   Detectors
-   ========================= */
 
 function isGreeting(text: string): boolean {
   const normalized = normalize(text);
@@ -103,10 +66,6 @@ function isQuestion(text: string): boolean {
 
   return false;
 }
-
-/* =========================
-   Main classifier
-   ========================= */
 
 export function detectInputKind(text: string): InputKind {
   if (!text || !text.trim()) {

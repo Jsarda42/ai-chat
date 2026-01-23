@@ -1,32 +1,5 @@
-const FACTUAL_ATTRIBUTES = [
-  "population",
-  "capital",
-  "currency",
-  "area",
-  "language",
-  "president",
-  "founder",
-  "birth",
-  "date",
-  "height",
-  "weight",
-  "age",
-];
-
-const NOISE_WORDS = [
-  "i",
-  "you",
-  "we",
-  "they",
-  "find",
-  "get",
-  "know",
-  "tell",
-  "about",
-  "can",
-  "could",
-  "please",
-];
+import { FACTUAL_ATTRIBUTES } from "@/aiV2/language/attributes";
+import { NOISE_WORDS } from "@/aiV2/language/noiseWords";
 
 export function canonicalizeAttribute(raw: string | null): string | null {
   if (!raw) return null;

@@ -1,0 +1,1 @@
+export const GREETING_WORDS = ["hello", "hi", "hey", "good morning", "good evening"];

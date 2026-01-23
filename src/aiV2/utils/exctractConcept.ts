@@ -28,6 +28,8 @@ export function extractEntityAndAttribute(text: string) {
         return { entity, attribute };
     }
 
+    
+
     // Pattern 2: "Who/What/When ... verb entity?" → "Who invented the telephone?"
     const questionWordIndex = tokens.findIndex(t => ["who", "what", "when", "why", "how", "where"].includes(t));
     if (questionWordIndex === 0) {

@@ -38,6 +38,10 @@ export default function TesterPage() {
     });
 
     const data = await res.json();
+    console.log("AI entity:", data.entity);
+    console.log("AI attribute:", data.attribute);
+    console.log("shape:", data.shape);
+    console.log("AI teachNeeded:", data.teachNeeded);
 
     setMessages(prev => [
       ...prev,
@@ -63,7 +67,6 @@ export default function TesterPage() {
     kind?: string
   ) => {
     if (!teachValue.trim()) return;
-
     await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
