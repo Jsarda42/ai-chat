@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-
+import { DecisionTrace } from "../../aiV2/utils/DecisionTrace";
+import { TracePanel } from "../../components/TracePanel";
 type Message = {
   text: string;
   role: "user" | "ai";
@@ -18,6 +19,7 @@ export default function TesterPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isOpen, setIsOpen] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [trace, setTrace] = useState<DecisionTrace | null>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -38,10 +40,11 @@ export default function TesterPage() {
     });
 
     const data = await res.json();
-    console.log("AI entity:", data.entity);
-    console.log("AI attribute:", data.attribute);
-    console.log("shape:", data.shape);
-    console.log("AI teachNeeded:", data.teachNeeded);
+
+
+    setTrace(data.trace ?? null);
+    console.log("TRACE", data.trace); 
+
 
     setMessages(prev => [
       ...prev,
@@ -108,68 +111,73 @@ export default function TesterPage() {
       </div>
 
       {/* Chat body */}
-      {isOpen && (
-        <div className="flex flex-col h-96 bg-black text-white p-4 border-t border-zinc-800">
-          <div className="flex-1 overflow-y-auto space-y-3">
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`p-2 rounded max-w-sm ${
-                  m.role === "user"
-                    ? "bg-blue-600 self-end"
-                    : "bg-zinc-800 self-start"
-                }`}
-              >
-                <div>{m.text}</div>
+{isOpen && (
+  <div className="flex flex-col h-[520px] bg-black text-white border-t border-zinc-800">
+    
+    {/* CHAT AREA */}
+    <div className="flex-1 flex flex-col p-4">
+      <div className="flex-1 overflow-y-auto space-y-3">
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            className={`p-2 rounded max-w-sm ${
+              m.role === "user"
+                ? "bg-blue-600 self-end"
+                : "bg-zinc-800 self-start"
+            }`}
+          >
+            <div>{m.text}</div>
 
-                {/* Teaching UI */}
-                {m.teachNeeded && m.entity && m.attribute && (
-                  <div className="mt-2 flex gap-2">
-                    <input
-                      type="text"
-                      value={teachValue}
-                      onChange={e => setTeachValue(e.target.value)}
-                      placeholder={`Teach: ${m.attribute} of ${m.entity}`}
-                      className="flex-1 bg-zinc-900 border border-zinc-700 p-1 rounded text-white"
-                      onKeyDown={e =>
-                        e.key === "Enter" &&
-                        teach(m.entity!, m.attribute!, m.kind)
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        teach(m.entity!, m.attribute!, m.kind)
-                      }
-                      className="bg-green-600 px-3 rounded"
-                    >
-                      Teach
-                    </button>
-                  </div>
-                )}
+            {/* Teaching UI */}
+            {m.teachNeeded && m.entity && m.attribute && (
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="text"
+                  value={teachValue}
+                  onChange={e => setTeachValue(e.target.value)}
+                  placeholder={`Teach: ${m.attribute} of ${m.entity}`}
+                  className="flex-1 bg-zinc-900 border border-zinc-700 p-1 rounded text-white text-sm"
+                  onKeyDown={e =>
+                    e.key === "Enter" &&
+                    teach(m.entity!, m.attribute!, m.kind)
+                  }
+                />
+                <button
+                  onClick={() => teach(m.entity!, m.attribute!, m.kind)}
+                  className="bg-green-600 px-3 rounded text-sm"
+                >
+                  Teach
+                </button>
               </div>
-            ))}
-            <div ref={chatEndRef} />
+            )}
           </div>
+        ))}
+        <div ref={chatEndRef} />
+      </div>
 
-          {/* Input */}
-          <div className="flex gap-2 mt-4">
-            <input
-              className="flex-1 bg-zinc-900 border border-zinc-700 p-2 rounded text-white"
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && sendMessage()}
-              placeholder="Ask something…"
-            />
-            <button
-              onClick={sendMessage}
-              className="bg-green-600 px-4 rounded"
-            >
-              Send
-            </button>
-          </div>
-        </div>
-      )}
+      {/* INPUT */}
+      <div className="flex gap-2 mt-3">
+        <input
+          className="flex-1 bg-zinc-900 border border-zinc-700 p-2 rounded text-white"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && sendMessage()}
+          placeholder="Ask something…"
+        />
+        <button
+          onClick={sendMessage}
+          className="bg-green-600 px-4 rounded"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+
+    {/* TRACE PANEL */}
+    <TracePanel trace={trace} />
+
+  </div>
+)}
     </div>
   );
 }

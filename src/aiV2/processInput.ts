@@ -2,7 +2,7 @@ import { normalize, normalizePossessive } from "./utils/normalizer";
 import { detectInputKind } from "./utils/detectInputKind";
 import { extractEntityAndAttribute } from "./utils/exctractConcept";
 import { findKnowledge, storeKnowledge } from "./utils/memory";
-import { estimateAnswerShape } from "./utils/estimateAnswerShape";
+import { estimateAnswerShapeWithTrace } from "./utils/estimateAnswerShape";
 import { canonicalizeAttribute } from "./utils/canonicalizeAttribute";
 import { mapAttributeSynonym } from "./utils/mapAttributeSynonym";
 
@@ -18,11 +18,13 @@ export async function processInput(input: string) {
   if (kind === "question" && entity && attribute) {
     response = await findKnowledge(entity, attribute);
   }
-  const shape = estimateAnswerShape({
+  const { shape, trace } = estimateAnswerShapeWithTrace({
     text: normalized,
     kind,
     entity,
     attribute,
+    raw: input,
+    normalized,
   });
 
   const teachable = shape === "fact" || shape === "definition" || shape === "number";
@@ -42,6 +44,7 @@ export async function processInput(input: string) {
     response,
     teachNeeded,
     shape,
+    trace,
   };
 
 }
