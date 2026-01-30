@@ -13,7 +13,6 @@ export default function NavBar() {
   ];
 
   const itemsBottom = [
-    { icon: "in", target: "contact" },
     { icon: "🌐", target: "contact" },
   ];
 

@@ -6,6 +6,7 @@ import Experiences from "@/components/Experiences";
 import { projects } from "@/data/projects";
 import { experiences } from "@/data/experiences";
 import Link from "next/link";
+import Contact from "@/components/Contact";
 
 export default function Home() {
   return (
@@ -69,9 +70,7 @@ export default function Home() {
         </div>
 
         {/* CONTACT */}
-        <div>
-          <h2 className="text-4xl mt-8 font-bold">Contact</h2>
-        </div>
+       <Contact/>
       </main>
     </div>
   );

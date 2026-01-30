@@ -1,11 +1,19 @@
 import { AnswerShape } from "../core/answerShapes";
 import { InputKind } from "../core/inputKinds";
+import { KnowledgeType } from "../types/knowledgeType";
 
 export type SignalHit = {
   signal: string;
   shape: AnswerShape;
   weight: number;
 };
+
+export type TeachingExpectation = {
+  entity: string;
+  attribute: string;
+  knowledgeType: KnowledgeType;
+};
+
 
 export type DecisionTrace = {
   input: {
@@ -36,5 +44,6 @@ export type DecisionTrace = {
   outcome: {
     shape: AnswerShape;
     teachable: boolean;
+    teachingExpectation?: TeachingExpectation | null;
   };
 };

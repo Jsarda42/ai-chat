@@ -1,7 +1,7 @@
 import { Project } from "@/types/project";
 
 export const projects: Project[] = [
-{
+  {
     title: "Mconscience",
     img: "/assets/mconscience.webp",
     description: "Freelance project for a sustainable lifestyle startup.",
@@ -22,4 +22,18 @@ export const projects: Project[] = [
     slug: "calculator",
     tags: ["C", "WebAssembly", "Emscripten"]
   },
+  {
+    title: "Adaptive AI Chat",
+    img: "/assets/ai-chat.webp",
+    description:
+      "Experimental AI chat system that learns new knowledge through conversation. Features decision tracing, knowledge validation, and a teach-on-demand workflow inspired by human learning.",
+    url: "https://github.com/Jsarda42/ai-chat/tree/main/src/aiV2",
+    tags: [
+      "TypeScript",
+      "Next.js",
+      "AI Systems",
+      "Knowledge Graph",
+      "Firebase"
+    ],
+  }
 ];

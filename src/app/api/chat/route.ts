@@ -6,15 +6,15 @@ export async function POST(req: NextRequest) {
 
   // TEACHING FLOW
   if (body.teach === true) {
-    const { entity, attribute, kind, value } = body;
-    if (!entity || !attribute || !value) {
+    const { entity, attribute, kind, value, knowledgeType } = body;
+    if (!entity || !attribute || !value || !knowledgeType) {
       return NextResponse.json(
         { error: "Missing teaching fields" },
         { status: 400 }
       );
     }
 
-    const saved = await teachConcept(entity, attribute, kind, value);
+    const saved = await teachConcept(entity, attribute, kind, value, knowledgeType);
 
     return NextResponse.json({ status: "ok", saved });
   }
