@@ -1,7 +1,10 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
+type NavBarProps = {
+  onNavigate?: () => void;
+};
 
-export default function NavBar() {
+export default function NavBar({ onNavigate }: NavBarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -16,17 +19,26 @@ export default function NavBar() {
     { icon: "🌐", target: "contact" },
   ];
 
-  const handleSectionNav = (id: string) => {
-    if (pathname === "/") {
-      // already on home → smooth scroll
-      document.getElementById(id)?.scrollIntoView({
-        behavior: "smooth"
+
+const handleSectionNav = (id: string) => {
+  onNavigate?.(); // close mobile nav
+
+  if (pathname === "/") {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
       });
-    } else {
-      // navigate back to home + section
-      router.push(`/#${id}`);
-    }
-  };
+    }, 100); // 👈 mobile needs this delay
+  } else {
+    router.push(`/#${id}`);
+  }
+};
+
+
 
   return (
     <nav

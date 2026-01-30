@@ -9,6 +9,49 @@ import { experiences } from "@/data/experiences";
 import Link from "next/link";
 import Contact from "@/components/Contact";
 
+function PageContent() {
+  return (
+    <>
+      <section id="home" className="scroll-mt-24">
+        <h1 className="text-4xl mb-8 font-bold">Julien Sarda</h1>
+        <p>
+          Frontend developer with a strong software engineering foundation from
+          42 Paris and OpenClassrooms, currently working as a freelance developer
+          in Korea.
+        </p>
+      </section>
+
+      <section id="experiences" className="scroll-mt-24">
+        <Experiences experiences={experiences} />
+      </section>
+
+      <section id="skills" className="scroll-mt-24">
+        <Skills />
+      </section>
+
+      <section id="projects" className="scroll-mt-24">
+        <Projects projects={projects} limit={2} />
+        <Link
+          href="/projects"
+          className="
+            group mt-6 flex items-center gap-2
+            text-zinc-400 hover:text-white transition w-fit
+          "
+        >
+          <span className="text-sm font-medium">See more</span>
+          <span className="transition-transform group-hover:translate-x-1">
+            →
+          </span>
+        </Link>
+      </section>
+
+      <section id="contact" className="scroll-mt-24">
+        <Contact />
+      </section>
+    </>
+  );
+}
+
 export default function Home() {
   const [navOpen, setNavOpen] = useState(false);
 
@@ -17,15 +60,11 @@ export default function Home() {
 
       {/* MOBILE NAV TOGGLE */}
       <button
-        onClick={() => setNavOpen(o => !o)}
+        onClick={() => setNavOpen((o) => !o)}
         className="
-          md:hidden
-          fixed top-4 left-4 z-50
-          w-12 h-12
-          rounded-full
-          bg-zinc-900
-          border border-white/10
-          shadow-lg
+          md:hidden fixed top-4 left-4 z-50
+          w-12 h-12 rounded-full
+          bg-zinc-900 border border-white/10
           flex items-center justify-center
         "
       >
@@ -35,111 +74,30 @@ export default function Home() {
       {/* MOBILE NAV OVERLAY */}
       {navOpen && (
         <div
-          className="
-            md:hidden
-            fixed inset-0 z-40
-            bg-black/60
-            backdrop-blur-sm
-          "
+          className="md:hidden fixed inset-0 z-40"
           onClick={() => setNavOpen(false)}
         >
           <div
             className="absolute top-20 left-4"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <NavBar />
+            <NavBar onNavigate={() => setNavOpen(false)} />
           </div>
         </div>
       )}
 
-      {/* DESKTOP LAYOUT */}
-      <div className="hidden md:flex min-h-screen">
-
-        {/* LEFT NAV */}
-        <aside
-          className="
-            w-30
-            shrink-0
-            sticky top-0
-            h-screen
-            flex items-center justify-center
-          "
-        >
+      {/* LAYOUT */}
+      <div className="flex min-h-screen">
+        {/* DESKTOP NAV */}
+        <aside className="hidden md:flex w-30 sticky top-0 h-screen items-center justify-center">
           <NavBar />
         </aside>
 
-        {/* MAIN CONTENT */}
+        {/* CONTENT (ONE TIME ONLY) */}
         <main className="flex-1 px-6 py-24">
-          <section id="home" className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl mb-8 font-bold">Julien Sarda</h1>
-              <p>
-                Frontend developer with a strong software engineering foundation from 42 Paris and
-                OpenClassrooms, currently working as a freelance developer on a commercial e-commerce project
-                in Korea.
-              </p>
-            </div>
-          </section>
-
-          <Experiences experiences={experiences} />
-          <Skills />
-
-          <div className="w-full">
-            <Projects projects={projects} limit={2} />
-
-            <Link
-              href="/projects"
-              className="
-      group
-      mt-6
-      flex items-center gap-2
-      text-zinc-400
-      hover:text-white
-      transition
-      cursor-pointer
-      w-fit
-    "
-            >
-              <span className="text-sm font-medium">See more</span>
-              <span className="transition-transform group-hover:translate-x-1">→</span>
-            </Link>
-          </div>
-
-          <Contact />
+          <PageContent />
         </main>
       </div>
-
-      {/* MOBILE CONTENT (no sidebar!) */}
-      <main className="md:hidden px-6 py-24">
-        <section id="home">
-          <h1 className="text-4xl mb-8 font-bold">Julien Sarda</h1>
-          <p>Frontend developer with a strong software engineering foundation…</p>
-        </section>
-
-        <Experiences experiences={experiences} />
-        <Skills />
-        <div className="w-full">
-          <Projects projects={projects} limit={2} />
-
-          <Link
-            href="/projects"
-            className="
-      group
-      mt-6
-      flex items-center gap-2
-      text-zinc-400
-      hover:text-white
-      transition
-      cursor-pointer
-      w-fit
-    "
-          >
-            <span className="text-sm font-medium">See more</span>
-            <span className="transition-transform group-hover:translate-x-1">→</span>
-          </Link>
-        </div>
-        <Contact />
-      </main>
     </div>
   );
 }
