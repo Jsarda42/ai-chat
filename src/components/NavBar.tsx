@@ -16,17 +16,6 @@ export default function NavBar() {
     { icon: "🌐", target: "contact" },
   ];
 
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    el.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
-
-
   const handleSectionNav = (id: string) => {
     if (pathname === "/") {
       // already on home → smooth scroll
