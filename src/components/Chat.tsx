@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import { DecisionTrace } from "@/aiV2/utils/DecisionTrace";
-import { TracePanel } from "./TracePanel";
 import { KnowledgeType } from "@/aiV2/types/knowledgeType";
 import { SuggestedQuestions } from "@/aiV2/components/SuggestedQuestions";
+import { TraceDrawer } from "@/aiV2/components/TraceDrawer";
 
 type Message = {
   text: string;
@@ -24,6 +24,7 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [trace, setTrace] = useState<DecisionTrace | null>(null);
+  const [traceOpen, setTraceOpen] = useState(false);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -105,15 +106,33 @@ export default function ChatWidget() {
   return (
     <div className="fixed bottom-4 right-4 w-full sm:w-96 z-50">
       {/* Header */}
-      <div
-        className="flex justify-between items-center bg-zinc-900 text-white px-4 py-2 cursor-pointer rounded-t-xl"
-        onClick={() => setIsOpen(o => !o)}
-      >
-        <span className="font-semibold">AI Assistant</span>
-        <span className="text-sm opacity-70">
-          {isOpen ? "—" : "▲"}
+      <div className="flex items-center justify-between bg-zinc-900 text-white px-4 py-2 rounded-t-xl">
+        <span
+          className="font-semibold cursor-pointer"
+          onClick={() => setIsOpen(o => !o)}
+        >
+          AI Assistant
         </span>
+
+        <div className="flex gap-2 items-center">
+          {trace && (
+            <button
+              onClick={() => setTraceOpen(true)}
+              className="text-xs px-2 py-1 bg-zinc-800 rounded hover:bg-zinc-700"
+            >
+              Trace
+            </button>
+          )}
+
+          <span
+            className="cursor-pointer text-sm opacity-70"
+            onClick={() => setIsOpen(o => !o)}
+          >
+            {isOpen ? "—" : "▲"}
+          </span>
+        </div>
       </div>
+
 
       {isOpen && (
         <div className="flex flex-col h-[520px] bg-black text-white border border-zinc-800 rounded-b-xl">
@@ -127,8 +146,8 @@ export default function ChatWidget() {
                 <div
                   key={i}
                   className={`p-2 rounded max-w-sm ${m.role === "user"
-                      ? "bg-blue-600 self-end"
-                      : "bg-zinc-800 self-start"
+                    ? "bg-blue-600 self-end"
+                    : "bg-zinc-800 self-start"
                     }`}
                 >
                   <div>{m.text}</div>
@@ -181,8 +200,13 @@ export default function ChatWidget() {
             </div>
           </div>
 
-          {/* TRACE
-          <TracePanel trace={trace} /> */}
+          {/* TRACE */}
+          <TraceDrawer
+            trace={trace}
+            open={traceOpen}
+            onClose={() => setTraceOpen(false)}
+          />
+
         </div>
       )}
     </div>

@@ -73,11 +73,14 @@ export async function processInput(input: string) {
     normalized,
   });
 
+  
+
   const knowledgeType = inferKnowledgeType({ shape, attribute });
 
   if (!knowledgeType) {
     return {
       error: "Cannot infer knowledge type",
+      trace
     };
   }
 
