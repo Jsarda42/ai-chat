@@ -118,13 +118,12 @@ export default function Home() {
 
         <Experiences experiences={experiences} />
         <Skills />
-        <Projects projects={projects} limit={2} />
         <div className="w-full">
-  <Projects projects={projects} limit={2} />
+          <Projects projects={projects} limit={2} />
 
-  <Link
-    href="/projects"
-    className="
+          <Link
+            href="/projects"
+            className="
       group
       mt-6
       flex items-center gap-2
@@ -134,11 +133,11 @@ export default function Home() {
       cursor-pointer
       w-fit
     "
-  >
-    <span className="text-sm font-medium">See more</span>
-    <span className="transition-transform group-hover:translate-x-1">→</span>
-  </Link>
-</div>
+          >
+            <span className="text-sm font-medium">See more</span>
+            <span className="transition-transform group-hover:translate-x-1">→</span>
+          </Link>
+        </div>
         <Contact />
       </main>
     </div>
